@@ -1,45 +1,92 @@
 import gzip
 import zlib
 
+def tryReadBytesBasedOnLength(datafile, chunk):
+    # print(datafile.read(1))
+    category = datafile.read(1)
+    for i in range(50):
+        print(category, end=" || ")
+        if(category == b"J"):
+            print("\nIdentified J category : ", datafile.read(chunk - 1))
+        category = datafile.read(1)
+    """
+    apple@Apples-MacBook-Air trexquant % python3 rough-work/read-and-decode/analyze.py 
+    b'\x00' || b'\x0c' || b'S' || b'\x00' || b'\x00' || b'\x00' || b'\x00' || b'\n' || b'\n' || b'`' || b'\xaa' || b'\xdb' || b'\x93' || b'O' || b'\x00' || b"'" || b'R' || b'\x00' || b'\x01' || b'\x00' || b'\x00' || b'\n' || b'J' || 
+    Identified J category :  b"L\xeeU\x99A       N \x00\x00\x00dNCZ PN 1N\x00\x00\x00\x00N\x00'"
+    b'R' || b'\x00' || b'\x02' || b'\x00' || b'\x00' || b'\n' || b'J' || 
+    Identified J category :  b"M\x06--AA      N \x00\x00\x00dNCZ PN 1N\x00\x00\x00\x01N\x00'"
+    b'R' || b'\x00' || b'\x03' || b'\x00' || b'\x00' || b'\n' || b'J' || 
+    Identified J category :  b"M\x07\x01oAAAU    P \x00\x00\x00dNQI PN 2Y\x00\x00\x00\x01N\x00'"
+    b'R' || b'\x00' || b'\x04' || b'\x00' || b'\x00' || b'\n' || b'J' || 
+    Identified J category :  b"M\x07\xb0\x96AABA    QN\x00\x00\x00dNCQ PNN2N\x00\x00\x00\x01N\x00'"
+    b'R' || b'\x00' || b'\x05' || b'\x00' || b'\x00' || b'\n' || %                                                
+    apple@Apples-MacBook-Air trexquant % 
+    """
+    
+    # for i in range(10):
+    #     print(datafile.readline())
+    """
+    apple@Apples-MacBook-Air trexquant % python3 rough-work/read-and-decode/analyze.py
+    b'\x00\x0cS\x00\x00\x00\x00\n'
+    b'\n'
+    b"`\xaa\xdb\x93O\x00'R\x00\x01\x00\x00\n"
+    b"JL\xeeU\x99A       N \x00\x00\x00dNCZ PN 1N\x00\x00\x00\x00N\x00'R\x00\x02\x00\x00\n"
+    b"JM\x06--AA      N \x00\x00\x00dNCZ PN 1N\x00\x00\x00\x01N\x00'R\x00\x03\x00\x00\n"
+    b"JM\x07\x01oAAAU    P \x00\x00\x00dNQI PN 2Y\x00\x00\x00\x01N\x00'R\x00\x04\x00\x00\n"
+    b"JM\x07\xb0\x96AABA    QN\x00\x00\x00dNCQ PNN2N\x00\x00\x00\x01N\x00'R\x00\x05\x00\x00\n"
+    b"JM\x08\x85lAAC     N \x00\x00\x00dNCZ PN 2N\x00\x00\x00\x00N\x00'R\x00\x06\x00\x00\n"
+    b"JM\ta\x10AADR    P \x00\x00\x00dNQI PN 2Y\x00\x00\x00\x00N\x00'R\x00\x07\x00\x00\n"
+    b'JM\n'
+    """
+
+def tryReadBytes(datafile):
+    dataObj = zlib.decompressobj()
+    CHUNKSIZE = 1024
+    buffer_value = datafile.read(CHUNKSIZE)
+    try:
+        print("Compressed:", buffer_value)
+        decompressed_data = dataObj.decompress(buffer_value)
+        print("Decompressed:", decompressed_data)
+    except:
+        print("Cannot : ", CHUNKSIZE)
+
+def tryReadLines(datafile):
+    data = datafile.readlines()     # very costly.
+    print(data[0], len(data))
+
+def tryReadLine(datafile):
+    for i in range(10980):
+        try:
+            datafile.readline()
+        except Exception as e:
+            print("Cannot understand line:", i+1, " Error : ", e.__class__)
+            print(e)
+
+    for i in range(20):
+        try:
+            temp = datafile.readline()
+            print(temp[0], chr(temp[0]), len(temp))
+            print("Raw content: ", temp)
+            # decodedString = temp.decode("unicode_escape")
+            # print("Size:        ", temp.__sizeof__(), len(decodedString))
+            # print("Decoded cont:", decodedString, end='')
+            # print(temp.decode('utf-16'))
+            # print(temp.decode('utf-8'))
+            # print(temp.decode('ascii'))
+
+        except Exception as e:
+            print("Cannot understand line:", i+1, " Error : ", e.__class__)
+            print(e)
+
 if __name__ == '__main__':
     filename = "data/01302019.NASDAQ_ITCH50.gz"
-    # dataObj = zlib.decompressobj()
 
+    # with open(filename, 'rb') as datafile:
     with gzip.open(filename, 'rb') as datafile:
-        for i in range(10980):
-            try:
-                datafile.readline()
-            except Exception as e:
-                print("Cannot understand line:", i+1, " Error : ", e.__class__)
-                print(e)
-        for i in range(20):
-            try:
-                temp = datafile.readline()
-                print(temp[0], chr(temp[0]), len(temp))
-                print("Raw content: ", temp)
-                # decodedString = temp.decode("unicode_escape")
-                # print("Size:        ", temp.__sizeof__(), len(decodedString))
-                # print("Decoded cont:", decodedString, end='')
-                # print(temp.decode('utf-16'))
-                # print(temp.decode('utf-8'))
-                # print(temp.decode('ascii'))
-
-            except Exception as e:
-                print("Cannot understand line:", i+1, " Error : ", e.__class__)
-                print(e)
-        # CHUNKSIZE = 1024
-        # buffer_value = datafile.read(CHUNKSIZE)
-        # # while buffer_value and i < 100:
-        # try:
-        #     print("Compressed:", buffer_value)
-        #     decompressed_data = dataObj.decompress(buffer_value)
-        #     print("Decompressed:", decompressed_data)
-        #     # if(CHUNKSIZE > 30):
-        #     #     break;
-        # except:
-        #     print("Cannot : ", CHUNKSIZE)
-        #     pass
-            
+        # tryReadLine(datafile)
+        # tryReadLines(datafile)
+        # tryReadBytes(datafile)
+        tryReadBytesBasedOnLength(datafile, 35)
     datafile.close()
 
 
